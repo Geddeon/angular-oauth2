@@ -35,6 +35,14 @@ function oauthInterceptor($q, $rootScope, OAuthToken) {
         $rootScope.$emit('oauth:error', rejection);
       }
 
+      // Catch `expired_token` and `unauthorized` errors.
+      if (401 === rejection.status &&
+        (rejection.data && 'expired_token' === rejection.data.error) ||
+        (rejection.headers('www-authenticate') && 0 === rejection.headers('www-authenticate').indexOf('Bearer'))
+      ) {
+        $rootScope.$emit('oauth:error', rejection);
+      }
+
       return $q.reject(rejection);
     }
   };
